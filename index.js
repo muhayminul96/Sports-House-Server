@@ -4,6 +4,8 @@ require("dotenv").config();
 const app = express();
 const cors = require("cors");
 
+var jwt = require('jsonwebtoken');
+
 app.use(cors());
 app.use(express.json());
 
@@ -63,6 +65,23 @@ async function run() {
       const result = await itemsCollection.deleteOne(query);
       res.send(result)
       
+    });
+
+    app.get("/myitems", async (req, res) => {
+      const email = req.query.email;
+      console.log(email)
+      const query = { supplierEmail:email };
+      const cursor =  await itemsCollection.find(query);
+      const myItems = await cursor.toArray();
+      console.log(myItems)
+      res.send(myItems);
+    });
+
+    app.post("/login", (req, res) => {
+      const email = req.body
+      const token = jwt.sign(email, process.env.ACCES_KEY, { expiresIn:'1d'});
+      console.log(token)
+      res.send({token});
     });
 
     // print a message if no documents were found
